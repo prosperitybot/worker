@@ -1,0 +1,70 @@
+package app
+
+import (
+	"context"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"github.com/gorilla/mux"
+	"github.com/prosperitybot/worker/domain"
+	"github.com/prosperitybot/worker/services"
+)
+
+// func init() {
+// 	prometheus.Register(totalRequests)
+// 	prometheus.Register(responseStatus)
+// 	prometheus.Register(httpDuration)
+// }
+
+func Start() {
+
+	// Init validator and register custom validation functions
+	// internal.InitValidator()
+
+	// Defining Router & Handlers
+	router := mux.NewRouter()
+	testHandler := TestHandler{services.NewTestService(domain.NewTestRepositoryDatabase())}
+
+	// Adding Middleware
+	router.Use(NewMiddleware())
+
+	// Handle Prometheus metrics endpoint
+	// router.Path("/metrics").Handler(promhttp.Handler())
+
+	// Loading Router
+	HandleRequests(router, testHandler)
+
+	// Handles CORS (Disabled due to Diddykong currently handling it)
+	//handler := cors.Default().Handler(router)
+
+	srv := &http.Server{
+		Addr:    ":" + os.Getenv("SERVER_PORT"),
+		Handler: router,
+	}
+
+	go func() {
+		if err := srv.ListenAndServe(); err != nil {
+			// logger.Error(context.Background(), fmt.Sprintf("An error occurred while serving the http server: %v", err))
+		}
+	}()
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
+
+	<-c
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
+	defer cancel()
+
+	// logger.Error(context.Background(), "Shutting down the http server")
+	err := srv.Shutdown(ctx)
+	if err != nil {
+		// logger.Error(context.Background(), fmt.Sprintf("An error occurred while shutting down the http server: %v", err))
+	}
+	// logger.Error(context.Background(), "Shutting down the database connection")
+	// internal.Database.Close()
+	os.Exit(0)
+}
