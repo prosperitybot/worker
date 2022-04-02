@@ -20,16 +20,19 @@ func BaseRequest(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err.Error())
 		internal.RespondToRequest(w, http.StatusUnauthorized, err.Error())
+		return
 	}
 	body := new(bytes.Buffer)
 	if _, err := io.Copy(body, r.Body); err != nil {
 		fmt.Println(err.Error())
 		internal.RespondToRequest(w, http.StatusUnauthorized, err.Error())
+		return
 	}
 	buf := bytes.NewBufferString(timestamp + body.String())
 	if !ed25519.Verify(key, buf.Bytes(), sig) {
 		fmt.Println("Invalid Signature")
 		internal.RespondToRequest(w, http.StatusUnauthorized, "Invalid Signature")
+		return
 	}
 	r.Body = io.NopCloser(body)
 	internal.RespondToRequest(w, http.StatusOK, "Status OK")
