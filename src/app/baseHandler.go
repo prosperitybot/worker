@@ -19,21 +19,21 @@ func BaseRequest(w http.ResponseWriter, r *http.Request) {
 	sig, err := hex.DecodeString(signature)
 	if err != nil {
 		fmt.Println(err.Error())
-		internal.RespondToRequest(w, http.StatusUnauthorized, err.Error())
+		internal.RespondToRequest(w, http.StatusUnauthorized, "invalid request signature")
 		return
 	}
 	body := new(bytes.Buffer)
 	if _, err := io.Copy(body, r.Body); err != nil {
 		fmt.Println(err.Error())
-		internal.RespondToRequest(w, http.StatusUnauthorized, err.Error())
+		internal.RespondToRequest(w, http.StatusUnauthorized, "invalid request signature")
 		return
 	}
 	buf := bytes.NewBufferString(timestamp + body.String())
 	if !ed25519.Verify(key, buf.Bytes(), sig) {
 		fmt.Println("Invalid Signature")
-		internal.RespondToRequest(w, http.StatusUnauthorized, "Invalid Signature")
+		internal.RespondToRequest(w, http.StatusUnauthorized, "invalid request signature")
 		return
 	}
 	r.Body = io.NopCloser(body)
-	internal.RespondToRequest(w, http.StatusOK, "Status OK")
+	internal.RespondToRequest(w, http.StatusOK, map[string]int{"type": 1})
 }
