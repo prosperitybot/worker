@@ -2,16 +2,19 @@ package app
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"github.com/gorilla/mux"
 	"github.com/prosperitybot/worker/domain"
 	"github.com/prosperitybot/worker/services"
 	"github.com/rs/cors"
+	muxtrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/gorilla/mux"
+	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
+	"gopkg.in/DataDog/dd-trace-go.v1/profiler"
 )
 
 // func init() {
@@ -24,9 +27,27 @@ func Start() {
 
 	// Init validator and register custom validation functions
 	// internal.InitValidator()
+	tracer.Start()
+	defer tracer.Stop()
 
-	// Defining Router & Handlers
-	router := mux.NewRouter()
+	if err := profiler.Start(
+		profiler.WithProfileTypes(
+			profiler.CPUProfile,
+			profiler.HeapProfile,
+
+			// The profiles below are disabled by
+			// default to keep overhead low, but
+			// can be enabled as needed.
+			// profiler.BlockProfile,
+			// profiler.MutexProfile,
+			// profiler.GoroutineProfile,
+		),
+	); err != nil {
+		log.Fatal(err)
+	}
+	defer profiler.Stop()
+
+	router := muxtrace.NewRouter()
 	testHandler := TestHandler{services.NewTestService(domain.NewTestRepositoryDatabase())}
 
 	// Adding Middleware

@@ -3,7 +3,7 @@ package app
 import (
 	"net/http"
 
-	"github.com/gorilla/mux"
+	"gopkg.in/DataDog/dd-trace-go.v1/contrib/gorilla/mux"
 )
 
 func HandleRequests(router *mux.Router, testHandler TestHandler) {

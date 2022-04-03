@@ -28,7 +28,7 @@ func BaseRequest(w http.ResponseWriter, r *http.Request) {
 		internal.RespondToRequest(w, http.StatusOK, map[string]int{"type": 1})
 		break
 	case model.InteractionApplicationCommand:
-		internal.RespondToInteraction(w, internal.AccessDenied, "This is a test")
+		internal.RespondToInteraction(w, internal.Successful, "This is a test")
 	}
 
 	// commandId := apiRequest.Data.ID
