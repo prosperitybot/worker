@@ -36,7 +36,7 @@ func NewMiddleware() mux.MiddlewareFunc {
 			logRespWriter := logging.NewLogResponseWriter(w)
 
 			// Passes on the HTTP request to actually run
-			next.ServeHTTP(w, r)
+			next.ServeHTTP(logRespWriter, r)
 
 			logging.Info(r.Context(), fmt.Sprintf("Res: %s %s", r.Method, r.RequestURI),
 				zap.Int("status", logRespWriter.StatusCode),
@@ -62,6 +62,7 @@ func ValidatePayload(w http.ResponseWriter, r *http.Request) bool {
 		fmt.Println(err.Error())
 		return false
 	}
+	fmt.Println(body.String())
 	buf := bytes.NewBufferString(timestamp + body.String())
 	if !ed25519.Verify(key, buf.Bytes(), sig) {
 		fmt.Println("Invalid Signature")
