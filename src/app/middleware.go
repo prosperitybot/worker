@@ -8,25 +8,40 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/prosperitybot/worker/internal"
+	"github.com/prosperitybot/worker/logging"
+	"go.uber.org/zap"
 )
 
 func NewMiddleware() mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			startTime := time.Now()
+
 			// Sets the Content-Type for the response
 			w.Header().Add("Content-Type", "application/json")
 
+			logging.Info(r.Context(), fmt.Sprintf("Req: %s %s", r.Method, r.RequestURI))
 			// Validates the payload
 			if ValidatePayload(w, r) == false {
 				internal.RespondToRequest(w, http.StatusUnauthorized, "invalid request signature")
 				return
 			}
 
+			logRespWriter := logging.NewLogResponseWriter(w)
+
 			// Passes on the HTTP request to actually run
 			next.ServeHTTP(w, r)
+
+			logging.Info(r.Context(), fmt.Sprintf("Res: %s %s", r.Method, r.RequestURI),
+				zap.Int("status", logRespWriter.StatusCode),
+				zap.String("response_time", fmt.Sprintf("%d ms", time.Since(startTime).Milliseconds())),
+				zap.Int("response_bytes", logRespWriter.Buf.Len()),
+				zap.String("method", r.Method),
+				zap.String("user_agent", r.Header.Get("User-Agent")))
 		})
 	}
 }
