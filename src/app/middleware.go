@@ -62,7 +62,6 @@ func ValidatePayload(w http.ResponseWriter, r *http.Request) bool {
 		fmt.Println(err.Error())
 		return false
 	}
-	fmt.Println(body.String())
 	buf := bytes.NewBufferString(timestamp + body.String())
 	if !ed25519.Verify(key, buf.Bytes(), sig) {
 		fmt.Println("Invalid Signature")
@@ -70,5 +69,5 @@ func ValidatePayload(w http.ResponseWriter, r *http.Request) bool {
 	}
 	r.Body = io.NopCloser(body)
 
-	return false
+	return true
 }
