@@ -28,16 +28,7 @@ func BaseRequest(w http.ResponseWriter, r *http.Request) {
 		internal.RespondToRequest(w, http.StatusOK, map[string]int{"type": 1})
 		break
 	case model.InteractionApplicationCommand:
-		internal.RespondToRequest(w, http.StatusOK, model.InteractionResponse{
-			Type: model.ChannelMessageWithSourceCallback,
-			Data: model.InteractionCallbackData{
-				Embeds: []model.MessageEmbed{{
-					Title:       "Test",
-					Type:        model.EmbedRichType,
-					Description: "This is a test command (This bot is in test mode)",
-				}},
-			},
-		})
+		internal.RespondToInteraction(w, internal.AccessDenied, "This is a test")
 	}
 
 	// commandId := apiRequest.Data.ID
