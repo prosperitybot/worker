@@ -8,3 +8,5 @@ require (
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/joho/godotenv v1.4.0
 )
+
+require github.com/rs/cors v1.8.2 // indirect

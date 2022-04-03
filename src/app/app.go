@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/prosperitybot/worker/domain"
 	"github.com/prosperitybot/worker/services"
+	"github.com/rs/cors"
 )
 
 // func init() {
@@ -37,12 +38,11 @@ func Start() {
 	// Loading Router
 	HandleRequests(router, testHandler)
 
-	// Handles CORS (Disabled due to Diddykong currently handling it)
-	//handler := cors.Default().Handler(router)
+	handler := cors.Default().Handler(router)
 
 	srv := &http.Server{
 		Addr:    ":" + os.Getenv("SERVER_PORT"),
-		Handler: router,
+		Handler: handler,
 	}
 
 	go func() {
