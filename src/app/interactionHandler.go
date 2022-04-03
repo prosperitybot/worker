@@ -21,12 +21,23 @@ func BaseRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if apiRequest.Type == 1 {
-		fmt.Printf("API Request: Type 1")
-		w.Header().Set("Authorization", fmt.Sprintf("Bot %s", os.Getenv("BOT_TOKEN")))
-		w.Header().Set("User-Agent", os.Getenv("BOT_USER_AGENT"))
+	w.Header().Set("Authorization", fmt.Sprintf("Bot %s", os.Getenv("BOT_TOKEN")))
+	w.Header().Set("User-Agent", os.Getenv("BOT_USER_AGENT"))
+	switch apiRequest.Type {
+	case model.InteractionPing:
 		internal.RespondToRequest(w, http.StatusOK, map[string]int{"type": 1})
-		return
+		break
+	case model.InteractionApplicationCommand:
+		internal.RespondToRequest(w, http.StatusOK, model.InteractionResponse{
+			Type: model.ChannelMessageWithSourceCallback,
+			Data: model.InteractionCallbackData{
+				Embeds: []model.MessageEmbed{{
+					Title:       "Test",
+					Type:        model.EmbedRichType,
+					Description: "This is a test command (This bot is in test mode)",
+				}},
+			},
+		})
 	}
 
 	commandId := apiRequest.Data.ID
