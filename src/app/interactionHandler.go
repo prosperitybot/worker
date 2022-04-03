@@ -23,7 +23,7 @@ func BaseRequest(w http.ResponseWriter, r *http.Request) {
 
 	if apiRequest.Type == 1 {
 		w.Header().Set("Authorization", fmt.Sprintf("Bot %s", os.Getenv("BOT_TOKEN")))
-		w.Header().Set("User-Agent", os.Getenv("USER_AGENT"))
+		w.Header().Set("User-Agent", os.Getenv("BOT_USER_AGENT"))
 		internal.RespondToRequest(w, http.StatusOK, map[string]int{"type": 1})
 		return
 	}
