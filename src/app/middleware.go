@@ -26,9 +26,11 @@ func NewMiddleware() mux.MiddlewareFunc {
 
 			logging.Info(r.Context(), fmt.Sprintf("Req: %s %s", r.Method, r.RequestURI))
 			// Validates the payload
-			if ValidatePayload(w, r) == false {
-				internal.RespondToRequest(w, http.StatusUnauthorized, "invalid request signature")
-				return
+			if r.RequestURI != "/health" {
+				if ValidatePayload(w, r) == false {
+					internal.RespondToRequest(w, http.StatusUnauthorized, "invalid request signature")
+					return
+				}
 			}
 
 			logRespWriter := logging.NewLogResponseWriter(w)
