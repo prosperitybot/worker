@@ -28,6 +28,8 @@ func BaseRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	internal.RespondToRequest(w, http.StatusOK, map[string]int{"type": 1})
+
 	commandId := apiRequest.Data.ID
 
 	fmt.Println(commandId)
