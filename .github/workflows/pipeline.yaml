@@ -65,7 +65,7 @@ jobs:
     needs: [Trivy]
     permissions:
       packages: write 
-      checks: write
+      contents: write
     steps:     
       -
         name: Checkout Code
