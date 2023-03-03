@@ -2,8 +2,6 @@ module github.com/prosperitybot/worker
 
 go 1.19
 
-replace github.com/prosperitybot/common => ../common
-
 require (
 	github.com/brpaz/echozap v1.1.3
 	github.com/bwmarrin/discordgo v0.27.0
