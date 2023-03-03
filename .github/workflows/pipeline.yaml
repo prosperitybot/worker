@@ -23,7 +23,7 @@ jobs:
         go-version: ${{ env.GO_VERSION }}
         
   
-  Security1:
+  Trivy:
     runs-on: ubuntu-latest
     name: Security Scan (Trivy)
     steps:
