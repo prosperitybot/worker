@@ -19,13 +19,17 @@ type XpCommand struct {
 }
 
 func (m XpCommand) Command() discordgo.ApplicationCommand {
-	minLevel := float64(1)
-	var defaultPermissions int64 = discordgo.PermissionAdministrator
+	var (
+		minLevel                 = float64(1)
+		defaultPermissions int64 = 0
+		dmAccess           bool  = false
+	)
 	return discordgo.ApplicationCommand{
 		Name:                     "xp",
 		Type:                     discordgo.ChatApplicationCommand,
 		Description:              "Manages user xp",
 		DefaultMemberPermissions: &defaultPermissions,
+		DMPermission:             &dmAccess,
 		Options: []*discordgo.ApplicationCommandOption{
 			{
 				Name:        "give",

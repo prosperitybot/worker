@@ -12,12 +12,12 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o /app/main cmd/worker/main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /worker cmd/worker/main.go
 
-FROM gcr.io/distroless/static-debian11
+FROM gcr.io/distroless/static-debian11:debug
 
-WORKDIR /app
+WORKDIR /root/
 
-COPY --from=builder /app/main /
+COPY --from=0 /worker ./
 
-ENTRYPOINT ["/main"]
+ENTRYPOINT ["./worker"]

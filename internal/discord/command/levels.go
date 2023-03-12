@@ -19,13 +19,17 @@ type LevelsCommand struct {
 }
 
 func (m LevelsCommand) Command() discordgo.ApplicationCommand {
-	minLevel := float64(1)
-	var defaultPermissions int64 = discordgo.PermissionAdministrator
+	var (
+		minLevel                 = float64(1)
+		defaultPermissions int64 = 0
+		dmAccess           bool  = false
+	)
 	return discordgo.ApplicationCommand{
 		Name:                     "levels",
 		Type:                     discordgo.ChatApplicationCommand,
 		Description:              "Manages user levels",
 		DefaultMemberPermissions: &defaultPermissions,
+		DMPermission:             &dmAccess,
 		Options: []*discordgo.ApplicationCommandOption{
 			{
 				Name:        "give",

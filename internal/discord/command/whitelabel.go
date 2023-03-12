@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/jmoiron/sqlx"
@@ -56,7 +57,21 @@ func (m WhitelabelCommand) Command() discordgo.ApplicationCommand {
 }
 
 func (m WhitelabelCommand) Execute(c echo.Context, i discordgo.Interaction) {
-	subCommand := i.ApplicationCommandData().Options[0]
+	var (
+		subCommand   = i.ApplicationCommandData().Options[0]
+		isWhitelabel = false
+	)
+
+	if err := m.db.GetContext(c.Request().Context(), &isWhitelabel, "SELECT exists (SELECT 1 FROM users WHERE userId = ? AND premium_status = true)", i.Member.User.ID); err != nil {
+		logger.Error(c.Request().Context(), "Error whilst checking whether user is whitelabel", zap.Error(err))
+		utils.SendResponse(c, "Could not check for whitelabel permissions", true, true)
+		return
+	}
+
+	if !isWhitelabel {
+		utils.SendResponse(c, "You are not a whitelabel client", true, true)
+		return
+	}
 
 	switch subCommand.Name {
 	case "setup":
@@ -74,6 +89,7 @@ func (m WhitelabelCommand) subcmd_setup(c echo.Context, i discordgo.Interaction,
 		userAlreadyHasBot = false
 		action            = "start"
 		bot               = model.WhitelabelBot{
+			UserId:    &i.Member.User.ID,
 			Token:     botToken,
 			PublicKey: &publicKey,
 			Action:    &action,
@@ -112,6 +128,7 @@ func (m WhitelabelCommand) subcmd_setup(c echo.Context, i discordgo.Interaction,
 			return
 		}
 		bot = oldBot
+		bot.UserId = &i.Member.User.ID
 		bot.OldId = &oldBot.Id
 		bot.Token = botToken
 		bot.PublicKey = &publicKey
@@ -141,41 +158,45 @@ func (m WhitelabelCommand) subcmd_actions(c echo.Context, i discordgo.Interactio
 	var (
 		embed = utils.CreateEmbed(&discordgo.MessageEmbed{
 			Title:       "Whitelabel Bot Actions",
-			Description: "Please select an action below",
+			Description: "Please select a bot below",
 		}, false)
+		bots          []model.WhitelabelBot
+		botComponents = []discordgo.SelectMenuOption{}
+	)
 
-		components = []discordgo.MessageComponent{
+	if err := m.db.SelectContext(c.Request().Context(), &bots, "SELECT * FROM whitelabel_bots WHERE userId = ?", i.Member.User.ID); err != nil {
+		logger.Error(c.Request().Context(), "Error whilst getting bots assigned to user", zap.Error(err))
+		utils.SendResponse(c, "Could not get whitelabel bot actions", true, true)
+		return
+	}
+
+	if len(bots) == 0 {
+		utils.SendResponse(c, "You don't have any whitelabel bots", true, true)
+		return
+	}
+
+	for i := range bots {
+		botComponents = append(botComponents, discordgo.SelectMenuOption{
+			Label:       fmt.Sprintf("%s#%s (%s)", *bots[i].Name, *bots[i].Discriminator, bots[i].Id),
+			Description: fmt.Sprintf("Last Action: %s", strings.ToUpper(bots[i].LastAction)),
+			Value:       bots[i].Id,
+		})
+	}
+
+	utils.SendComplexResponse(c, discordgo.InteractionResponseData{
+		Flags:  discordgo.MessageFlagsEphemeral,
+		Embeds: []*discordgo.MessageEmbed{embed},
+		Components: []discordgo.MessageComponent{
 			discordgo.ActionsRow{
 				Components: []discordgo.MessageComponent{
-					discordgo.Button{
-						Style:    discordgo.SuccessButton,
-						Label:    "Start",
-						CustomID: "whitelabel::start",
-					},
-					discordgo.Button{
-						Style:    discordgo.DangerButton,
-						Label:    "Stop",
-						CustomID: "whitelabel::stop",
-					},
-					discordgo.Button{
-						Style:    discordgo.PrimaryButton,
-						Label:    "Restart",
-						CustomID: "whitelabel::restart",
-					},
-					discordgo.Button{
-						Style:    discordgo.DangerButton,
-						Label:    "Delete",
-						CustomID: "whitelabel::delete",
+					discordgo.SelectMenu{
+						CustomID: "whitelabel::botselection",
+						MenuType: discordgo.StringSelectMenu,
+						Options:  botComponents,
 					},
 				},
 			},
-		}
-	)
-
-	utils.SendComplexResponse(c, discordgo.InteractionResponseData{
-		Flags:      discordgo.MessageFlagsEphemeral,
-		Embeds:     []*discordgo.MessageEmbed{embed},
-		Components: components,
+		},
 	})
 }
 

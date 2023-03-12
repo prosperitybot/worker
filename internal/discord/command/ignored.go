@@ -19,12 +19,16 @@ type IgnoredCommand struct {
 }
 
 func (m IgnoredCommand) Command() discordgo.ApplicationCommand {
-	var defaultPermissions int64 = discordgo.PermissionAdministrator
+	var (
+		defaultPermissions int64 = 0
+		dmAccess           bool  = false
+	)
 	return discordgo.ApplicationCommand{
 		Name:                     "ignored",
 		Type:                     discordgo.ChatApplicationCommand,
 		Description:              "Manage ignored channels and roles",
 		DefaultMemberPermissions: &defaultPermissions,
+		DMPermission:             &dmAccess,
 		Options: []*discordgo.ApplicationCommandOption{
 			{
 				Name:        "channels",

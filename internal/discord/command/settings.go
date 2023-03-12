@@ -21,15 +21,17 @@ type SettingsCommand struct {
 
 func (m SettingsCommand) Command() discordgo.ApplicationCommand {
 	var (
+		defaultPermissions int64   = 0
+		dmAccess           bool    = false
 		minMultiplierValue float64 = 0.0
 		minDelay           float64 = 1
-		defaultPermissions int64   = discordgo.PermissionAdministrator
 	)
 	return discordgo.ApplicationCommand{
 		Name:                     "settings",
 		Type:                     discordgo.ChatApplicationCommand,
 		Description:              "Manages settings for the server",
 		DefaultMemberPermissions: &defaultPermissions,
+		DMPermission:             &dmAccess,
 		Options: []*discordgo.ApplicationCommandOption{
 			{
 				Name:        "notifications",

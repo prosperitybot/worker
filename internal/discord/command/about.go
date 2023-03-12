@@ -31,7 +31,7 @@ func (m AboutCommand) Execute(c echo.Context, i discordgo.Interaction) {
 		aboutStats model.AboutStats
 	)
 
-	if err := m.db.Get(&aboutStats, "SELECT (SELECT COUNT(*) FROM guilds WHERE active = true) as servers, (SELECT COUNT(*) FROM guild_users) as members, (SELECT COUNT(*) FROM message_logs) as messages"); err != nil {
+	if err := m.db.Get(&aboutStats, "SELECT (SELECT COUNT(id) FROM guilds WHERE active = true) AS servers, COUNT(DISTINCT guildId, userId) AS users, (SELECT COUNT(id) FROM message_logs) AS messages FROM guild_users"); err != nil {
 		logger.Error(c.Request().Context(), "failed to get about stats", zap.Error(err))
 		utils.SendResponse(c, "Failed to load the about command", true, true)
 		return

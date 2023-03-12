@@ -82,7 +82,7 @@ func (s SettingsNotificationComponent) Execute(c echo.Context, i discordgo.Inter
 	}
 
 	if notificationType != "NOT_UPDATED" {
-		if _, err := s.db.Exec("UPDATE guilds SET notificationType = ? AND notificationChannel = NULL WHERE id = ?", notificationType, i.GuildID); err != nil {
+		if _, err := s.db.Exec("UPDATE guilds SET notificationType = ?, notificationChannel = NULL WHERE id = ?", notificationType, i.GuildID); err != nil {
 			logger.Error(c.Request().Context(), "failed to update guild notification type", zap.Error(err))
 			utils.SendResponse(c, "Failed to update guild notification type", true, true)
 		}

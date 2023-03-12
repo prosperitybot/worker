@@ -26,9 +26,7 @@ import (
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file", err)
-	}
+	_ = godotenv.Load()
 	if err := logger.Init(); err != nil {
 		log.Fatal(err)
 	}
@@ -46,7 +44,9 @@ func main() {
 	echoInstance.Use(echozap.ZapLogger(logger.GetLogger()))
 
 	components := map[string]discord.Component{
-		"settings::notification": component.NewSettingsNotificationComponent(db),
+		"settings::notifications":  component.NewSettingsNotificationComponent(db),
+		"whitelabel::botselection": component.NewWhitelabelBotSelectionComponent(db),
+		"whitelabel::actions":      component.NewWhitelabelActionsComponent(db),
 	}
 
 	commands := map[string]discord.SlashCommand{
@@ -56,9 +56,12 @@ func main() {
 		"level":       command.NewLevelCommand(db),
 		"levelroles":  command.NewLevelRolesCommand(db),
 		"levels":      command.NewLevelsCommand(db),
-		"settings":    command.NewSettingsCommand(db, components["settings::notification"].(component.SettingsNotificationComponent)),
-		"whitelabel":  command.NewWhitelabelCommand(db),
-		"xp":          command.NewXpCommand(db),
+		"settings": command.NewSettingsCommand(
+			db,
+			components["settings::notifications"].(component.SettingsNotificationComponent),
+		),
+		"whitelabel": command.NewWhitelabelCommand(db),
+		"xp":         command.NewXpCommand(db),
 	}
 
 	commandList := make([]discordgo.ApplicationCommand, len(commands))
@@ -69,7 +72,8 @@ func main() {
 	}
 
 	interactionHandler := handler.InteractionHandler{
-		Commands: commands,
+		Commands:   commands,
+		Components: components,
 	}
 
 	healthHandler := handler.HealthHandler{Db: db}
@@ -78,12 +82,13 @@ func main() {
 		whitelabelBots []model.WhitelabelBot
 	)
 
-	if err := db.SelectContext(context.Background(), &whitelabelBots, "SELECT * FROM whitelabel_bots"); err != nil {
-		logger.Fatal(context.Background(), "error getting whitelabel bots", zap.Error(err))
-	}
-
 	utils.CreateCommands(commandList, os.Getenv("DISCORD_APPLICATION_ID"), os.Getenv("BOT_TOKEN"), os.Getenv("DEVGUILD_ID"))
-	if os.Getenv("DEVGUILD_ID") != "" {
+
+	if os.Getenv("DEVGUILD_ID") == "" {
+		if err := db.SelectContext(context.Background(), &whitelabelBots, "SELECT * FROM whitelabel_bots"); err != nil {
+			logger.Fatal(context.Background(), "error getting whitelabel bots", zap.Error(err))
+		}
+
 		for i := range whitelabelBots {
 			utils.CreateCommands(commandList, whitelabelBots[i].Id, whitelabelBots[i].Token, os.Getenv("DEVGUILD_ID"))
 		}

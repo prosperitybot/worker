@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/labstack/echo/v4"
@@ -48,7 +49,13 @@ func (h InteractionHandler) POSTInteractions(c echo.Context) error {
 		c = addContextInfo(c, body, botId)
 
 		if component, v := h.Components[body.MessageComponentData().CustomID]; !v {
-			return c.NoContent(404)
+			splitString := strings.Split(body.MessageComponentData().CustomID, "_")
+			if comp, w := h.Components[splitString[0]]; !w {
+				return c.NoContent(404)
+			} else {
+				logger.Info(c.Request().Context(), fmt.Sprintf("Handling component %s", splitString[0]), zap.String("component", body.MessageComponentData().CustomID))
+				comp.Execute(c, body)
+			}
 		} else {
 			logger.Info(c.Request().Context(), fmt.Sprintf("Handling component %s", body.MessageComponentData().CustomID), zap.String("component", body.MessageComponentData().CustomID))
 			component.Execute(c, body)
