@@ -14,7 +14,7 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /worker cmd/worker/main.go
 
-FROM gcr.io/distroless/static-debian11:debug
+FROM gcr.io/distroless/static-debian11
 
 WORKDIR /root/
 
