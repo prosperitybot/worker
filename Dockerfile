@@ -16,8 +16,8 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /worker cmd/worker/main.go
 
 FROM gcr.io/distroless/static-debian11
 
-WORKDIR /root/
+WORKDIR /app/
 
-COPY --from=0 /worker ./
+COPY --chown=10001:10001 --from=0 /worker ./
 
 ENTRYPOINT ["./worker"]
