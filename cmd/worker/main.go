@@ -10,6 +10,7 @@ import (
 	"github.com/brpaz/echozap"
 	_ "github.com/go-sql-driver/mysql"
 	"go.uber.org/zap"
+	"golang.org/x/crypto/acme/autocert"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/jmoiron/sqlx"
@@ -101,7 +102,9 @@ func main() {
 	data, _ := json.MarshalIndent(echoInstance.Routes(), "", "  ")
 	logger.Debug(context.Background(), string(data))
 
-	echoInstance.Start(":3000")
+	echoInstance.AutoTLSManager.HostPolicy = autocert.HostWhitelist(os.Getenv("WORKER_BASE_URL"))
+	echoInstance.AutoTLSManager.Cache = autocert.DirCache("/app/.cache")
+	echoInstance.StartAutoTLS(":443")
 }
 
 func setupDatabase() *sqlx.DB {

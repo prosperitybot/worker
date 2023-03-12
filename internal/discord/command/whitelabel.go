@@ -147,7 +147,7 @@ func (m WhitelabelCommand) subcmd_setup(c echo.Context, i discordgo.Interaction,
 		return
 	}
 
-	interactionsEndpointUrl := os.Getenv("WORKER_BASE_URL") + "/interactions/" + bot.Id
+	interactionsEndpointUrl := "https://" + os.Getenv("WORKER_BASE_URL") + "/interactions/" + bot.Id
 	developerPage := fmt.Sprintf("https://discord.com/developers/applications/%s/information", bot.Id)
 
 	utils.SendResponse(c, fmt.Sprintf("Whitelabel bot activated\n\nPlease put the following link in `INTERACTIONS ENDPOINT URL` [here](%s): \n`%s`", developerPage, interactionsEndpointUrl), true, false)
