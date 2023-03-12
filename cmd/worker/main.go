@@ -84,7 +84,7 @@ func main() {
 
 	utils.CreateCommands(commandList, os.Getenv("DISCORD_APPLICATION_ID"), os.Getenv("BOT_TOKEN"), os.Getenv("DEVGUILD_ID"))
 
-	if os.Getenv("DEVGUILD_ID") == "" {
+	if os.Getenv("ENV") == "prod" {
 		if err := db.SelectContext(context.Background(), &whitelabelBots, "SELECT * FROM whitelabel_bots"); err != nil {
 			logger.Fatal(context.Background(), "error getting whitelabel bots", zap.Error(err))
 		}

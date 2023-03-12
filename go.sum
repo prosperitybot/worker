@@ -44,6 +44,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/prosperitybot/common v0.0.1 h1:IvABiueRTs/Q42QGbVB/uHlWiJKm3+sKLghKxBU6+hk=
 github.com/prosperitybot/common v0.0.1/go.mod h1:E7rCHKbcrd/DasATxt11mIBn+Tq8240yHEnckvTM4Bw=
+github.com/prosperitybot/common v0.0.2 h1:Dl6xV/JI0mlYUXuvgI0CPStEAkSz1/lPMEjMOq6iWHM=
+github.com/prosperitybot/common v0.0.2/go.mod h1:E7rCHKbcrd/DasATxt11mIBn+Tq8240yHEnckvTM4Bw=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=

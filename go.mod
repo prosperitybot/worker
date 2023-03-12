@@ -11,7 +11,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.10.2
-	github.com/prosperitybot/common v0.0.1
+	github.com/prosperitybot/common v0.0.2
 	go.uber.org/zap v1.24.0
 )
 
