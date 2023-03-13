@@ -8,8 +8,10 @@ import (
 	"os"
 
 	"github.com/brpaz/echozap"
-	_ "github.com/go-sql-driver/mysql"
+	"github.com/go-sql-driver/mysql"
 	"go.uber.org/zap"
+	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
+	"gopkg.in/DataDog/dd-trace-go.v1/profiler"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/jmoiron/sqlx"
@@ -23,6 +25,10 @@ import (
 	"github.com/prosperitybot/worker/internal/discord/component"
 	"github.com/prosperitybot/worker/internal/http/handler"
 	"github.com/prosperitybot/worker/internal/http/middleware"
+
+	sqltrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/database/sql"
+	sqlxtrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/jmoiron/sqlx"
+	httptrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/labstack/echo.v4"
 )
 
 func main() {
@@ -31,9 +37,25 @@ func main() {
 		log.Fatal(err)
 	}
 
+	tracer.Start()
+	defer tracer.Stop()
+
+	err := profiler.Start(
+		profiler.WithProfileTypes(
+			profiler.CPUProfile,
+			profiler.HeapProfile,
+		),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer profiler.Stop()
+
 	db := setupDatabase()
 
 	echoInstance := echo.New()
+
+	echoInstance.Use(httptrace.Middleware(httptrace.WithServiceName("worker")))
 
 	// Auth group
 	authGroup := echoInstance.Group("")
@@ -107,7 +129,8 @@ func main() {
 }
 
 func setupDatabase() *sqlx.DB {
-	db, err := sqlx.Connect(
+	sqltrace.Register("mysql", &mysql.MySQLDriver{}, sqltrace.WithServiceName("worker"))
+	db, err := sqlxtrace.Open(
 		"mysql",
 		fmt.Sprintf(
 			"%s:%s@tcp(%s:%s)/%s?parseTime=true",
