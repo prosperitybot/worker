@@ -112,7 +112,13 @@ func (m LevelsCommand) subcmd(c echo.Context, i discordgo.Interaction, subComman
 		return
 	}
 
-	utils.SendResponse(c, fmt.Sprintf("Given **%d** level(s) to <@%s>", levels, userId), false, false)
+	prefix := "Given"
+
+	if !shouldGive {
+		prefix = "Taken"
+	}
+
+	utils.SendResponse(c, fmt.Sprintf("%s **%d** level(s) to <@%s>", prefix, levels, userId), false, false)
 }
 
 func NewLevelsCommand(db *sqlx.DB) LevelsCommand {
