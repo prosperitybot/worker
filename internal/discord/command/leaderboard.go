@@ -66,7 +66,7 @@ func (m LeaderboardCommand) Execute(c echo.Context, i discordgo.Interaction) {
 	}
 
 	for i := range guildUsers {
-		userIndex := i + offset
+		userIndex := i + 1 + offset
 		leaderboardLines = append(leaderboardLines, fmt.Sprintf("%d. %s - Level %d", userIndex, guildUsers[i].Username, guildUsers[i].Level))
 	}
 	responseMsg := fmt.Sprintf("Top 10 Members (Page %d of %d)\n\n %s", page, userCount/pageSize, strings.Join(leaderboardLines, "\n"))
