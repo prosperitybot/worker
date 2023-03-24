@@ -43,6 +43,7 @@ func (m LeaderboardCommand) Execute(c echo.Context, i discordgo.Interaction) {
 		guildUsers       []model.GuildUser
 		userCount        int
 		leaderboardLines []string
+		offset           = pageSize * (page - 1)
 	)
 
 	if len(i.ApplicationCommandData().Options) > 0 {
@@ -56,7 +57,7 @@ func (m LeaderboardCommand) Execute(c echo.Context, i discordgo.Interaction) {
 	}
 
 	leaderboardQuery := `SELECT gu.*, CONCAT(u.username, "#", u.discriminator) AS username FROM guild_users gu INNER JOIN users u ON gu.userId = u.id WHERE guildId = ? ORDER BY xp DESC LIMIT %d OFFSET %d`
-	leaderboardQuery = fmt.Sprintf(leaderboardQuery, pageSize, pageSize*(page-1))
+	leaderboardQuery = fmt.Sprintf(leaderboardQuery, pageSize, offset)
 
 	if err := m.db.SelectContext(c.Request().Context(), &guildUsers, leaderboardQuery, guildId); err != nil {
 		logger.Error(c.Request().Context(), "Error getting list of users for the leaderboard", zap.Error(err))
@@ -65,7 +66,8 @@ func (m LeaderboardCommand) Execute(c echo.Context, i discordgo.Interaction) {
 	}
 
 	for i := range guildUsers {
-		leaderboardLines = append(leaderboardLines, fmt.Sprintf("%d. %s - Level %d", i+1, guildUsers[i].Username, guildUsers[i].Level))
+		userIndex := i + offset
+		leaderboardLines = append(leaderboardLines, fmt.Sprintf("%d. %s - Level %d", userIndex, guildUsers[i].Username, guildUsers[i].Level))
 	}
 	responseMsg := fmt.Sprintf("Top 10 Members (Page %d of %d)\n\n %s", page, userCount/pageSize, strings.Join(leaderboardLines, "\n"))
 

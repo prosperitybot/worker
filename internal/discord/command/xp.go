@@ -101,12 +101,14 @@ func (m XpCommand) subcmd(c echo.Context, i discordgo.Interaction, subCommand *d
 	}
 
 	prefix := "Given"
+	middle := "to"
 
 	if shouldGive {
 		guildUser.Xp += xp
 	} else {
 		guildUser.Xp -= xp
 		prefix = "Taken"
+		middle = "from"
 	}
 
 	for !levelFound {
@@ -130,7 +132,7 @@ func (m XpCommand) subcmd(c echo.Context, i discordgo.Interaction, subCommand *d
 		utils.SendResponse(c, "Error updating user", true, true)
 		return
 	}
-	utils.SendResponse(c, fmt.Sprintf("%s **%d** xp to <@%s>", prefix, xp, userId), false, false)
+	utils.SendResponse(c, fmt.Sprintf("%s **%d** xp %s <@%s>", prefix, xp, middle, userId), false, false)
 }
 
 func NewXpCommand(db *sqlx.DB) XpCommand {
