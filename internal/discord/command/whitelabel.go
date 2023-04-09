@@ -62,7 +62,7 @@ func (m WhitelabelCommand) Execute(c echo.Context, i discordgo.Interaction) {
 		isWhitelabel = false
 	)
 
-	if err := m.db.GetContext(c.Request().Context(), &isWhitelabel, "SELECT exists (SELECT 1 FROM users WHERE userId = ? AND premium_status = true)", i.Member.User.ID); err != nil {
+	if err := m.db.GetContext(c.Request().Context(), &isWhitelabel, "SELECT exists (SELECT 1 FROM users WHERE id = ? AND premium_status = true)", i.Member.User.ID); err != nil {
 		logger.Error(c.Request().Context(), "Error whilst checking whether user is whitelabel", zap.Error(err))
 		utils.SendResponse(c, "Could not check for whitelabel permissions", true, true)
 		return
