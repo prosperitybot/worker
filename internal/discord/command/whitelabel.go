@@ -129,7 +129,7 @@ func (m WhitelabelCommand) subcmd_setup(c echo.Context, i discordgo.Interaction,
 	}
 
 	// Insert bot into database
-	if _, err := m.db.NamedExecContext(c.Request().Context(), "INSERT INTO whitelabel_bots (userId, botId, oldBotId, token, publicKey, action, botName, botDiscrim, botAvatarHash, createdAt, updatedAt) VALUES (:userId, :botId, :oldBotId, :token, :publicKey, :action, :botName, :botDiscrim, :botAvatarHash, :createdAt, :updatedAt)", bot); err != nil {
+	if _, err := m.db.NamedExecContext(c.Request().Context(), "INSERT INTO whitelabel_bots (userId, botId, oldBotId, token, publicKey, action, botName, botDiscrim, botAvatarHash, createdAt, updatedAt) VALUES (:userId, :botId, :oldBotId, :token, :publicKey, :action, :botName, :botDiscrim, :botAvatarHash, :createdAt, :updatedAt) ON DUPLICATE KEY UPDATE botId = :botId, oldBotId = :oldBotId, token = :token, publicKey = :publicKey, botName = :botName, botDiscrim = :botDiscrim, updatedAt = :updatedAt", bot); err != nil {
 		logger.Error(c.Request().Context(), "Error whilst inserting bot into database", zap.Error(err))
 		utils.SendResponse(c, "Could not activate whitelabel bot", true, true)
 		return
