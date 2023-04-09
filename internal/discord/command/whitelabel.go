@@ -85,7 +85,6 @@ func (m WhitelabelCommand) subcmd_setup(c echo.Context, i discordgo.Interaction,
 	var (
 		botToken          = subCommand.Options[0].StringValue()
 		publicKey         = subCommand.Options[1].StringValue()
-		botAlreadyExists  = false
 		userAlreadyHasBot = false
 		action            = "start"
 		bot               = model.WhitelabelBot{
@@ -99,17 +98,6 @@ func (m WhitelabelCommand) subcmd_setup(c echo.Context, i discordgo.Interaction,
 	if err := bot.FillInfoByToken(); err != nil {
 		logger.Error(c.Request().Context(), "Error whilst collecting bot user information", zap.Error(err))
 		utils.SendResponse(c, "Invalid bot token", true, true)
-		return
-	}
-
-	if err := m.db.GetContext(c.Request().Context(), &botAlreadyExists, "SELECT exists (SELECT 1 FROM whitelabel_bots WHERE botId = ?)", bot.Id); err != nil {
-		logger.Error(c.Request().Context(), "Error whilst checking whether bot already exists", zap.Error(err))
-		utils.SendResponse(c, "Could not activate whitelabel bot", true, true)
-		return
-	}
-
-	if botAlreadyExists {
-		utils.SendResponse(c, "Bot already exists", true, true)
 		return
 	}
 
