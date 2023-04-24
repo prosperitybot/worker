@@ -103,6 +103,12 @@ func (m LevelsCommand) subcmd(c echo.Context, i discordgo.Interaction, subComman
 		guildUser.Level += int(levels)
 	} else {
 		guildUser.Level -= int(levels)
+
+		if guildUser.Level < 0 {
+			logger.Warn(c.Request().Context(), "User level is less than 0", zap.Int("level", guildUser.Level))
+			utils.SendResponse(c, "User level cannot be less than 0", true, true)
+			return
+		}
 	}
 	guildUser.Xp = utils.GetXPRequired(guildUser.Level-1) + 1
 
