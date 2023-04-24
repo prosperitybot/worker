@@ -48,6 +48,7 @@ func (m LeaderboardCommand) Execute(c echo.Context, i discordgo.Interaction) {
 
 	if len(i.ApplicationCommandData().Options) > 0 {
 		page = int(i.ApplicationCommandData().Options[0].IntValue())
+		offset = pageSize * (page - 1)
 	}
 
 	if err := m.db.GetContext(c.Request().Context(), &userCount, "SELECT COUNT(*) FROM guild_users WHERE guildId = ?", guildId); err != nil {
