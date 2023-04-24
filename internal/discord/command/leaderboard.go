@@ -56,8 +56,8 @@ func (m LeaderboardCommand) Execute(c echo.Context, i discordgo.Interaction) {
 		return
 	}
 
-	leaderboardQuery := `SELECT gu.*, CONCAT(u.username, "#", u.discriminator) AS username FROM guild_users gu INNER JOIN users u ON gu.userId = u.id WHERE guildId = ? ORDER BY xp DESC OFFSET %d LIMIT %d`
-	leaderboardQuery = fmt.Sprintf(leaderboardQuery, offset, pageSize)
+	leaderboardQuery := `SELECT gu.*, CONCAT(u.username, "#", u.discriminator) AS username FROM guild_users gu INNER JOIN users u ON gu.userId = u.id WHERE guildId = ? ORDER BY xp DESC LIMIT %d OFFSET %d`
+	leaderboardQuery = fmt.Sprintf(leaderboardQuery, pageSize, offset)
 
 	if err := m.db.SelectContext(c.Request().Context(), &guildUsers, leaderboardQuery, guildId); err != nil {
 		logger.Error(c.Request().Context(), "Error getting list of users for the leaderboard", zap.Error(err))
