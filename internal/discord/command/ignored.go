@@ -200,7 +200,7 @@ func (m IgnoredCommand) subcmd_channels_list(c echo.Context, i discordgo.Interac
 	ignoredChannelStrings := make([]string, len(channelIds))
 
 	for i := range channelIds {
-		ignoredChannelStrings[i] = fmt.Sprintf("- <@&%s>", channelIds[i])
+		ignoredChannelStrings[i] = fmt.Sprintf("- <#%s>", channelIds[i])
 	}
 
 	utils.SendResponse(c, fmt.Sprintf("**Ignored Channels**\n\n%s", strings.Join(ignoredChannelStrings, "\n")), false, false)
