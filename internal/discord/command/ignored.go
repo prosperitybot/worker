@@ -61,6 +61,11 @@ func (m IgnoredCommand) Command() discordgo.ApplicationCommand {
 							},
 						},
 					},
+					{
+						Name:        "list",
+						Type:        discordgo.ApplicationCommandOptionSubCommand,
+						Description: "List all ignored channels",
+					},
 				},
 			},
 			{
@@ -93,6 +98,11 @@ func (m IgnoredCommand) Command() discordgo.ApplicationCommand {
 								Required:    true,
 							},
 						},
+					},
+					{
+						Name:        "list",
+						Type:        discordgo.ApplicationCommandOptionSubCommand,
+						Description: "List all ignored roles",
 					},
 				},
 			},
