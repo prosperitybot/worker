@@ -31,7 +31,7 @@ func (m AboutCommand) Execute(c echo.Context, i discordgo.Interaction) {
 		aboutStats model.AboutStats
 	)
 
-	if err := m.db.Get(&aboutStats, "SELECT (SELECT COUNT(id) FROM guilds WHERE active = true) AS servers, COUNT(DISTINCT guildId, userId) AS users, (SELECT COUNT(id) FROM message_logs) AS messages FROM guild_users"); err != nil {
+	if err := m.db.Get(&aboutStats, "SELECT (SELECT COUNT(id) FROM guilds WHERE active = true) AS servers, COUNT(DISTINCT guildId, userId) AS users FROM guild_users"); err != nil {
 		logger.Error(c.Request().Context(), "failed to get about stats", zap.Error(err))
 		utils.SendResponse(c, "Failed to load the about command", true, true)
 		return
@@ -43,7 +43,7 @@ func (m AboutCommand) Execute(c echo.Context, i discordgo.Interaction) {
 		Fields: []*discordgo.MessageEmbedField{
 			{
 				Name:   "Bot Statistics",
-				Value:  fmt.Sprintf("Servers: %d\nMembers: %d\nMessages: %d", aboutStats.Servers, aboutStats.Users, aboutStats.Messages),
+				Value:  fmt.Sprintf("Servers: %d\nMembers: %d", aboutStats.Servers, aboutStats.Users),
 				Inline: true,
 			},
 		},
