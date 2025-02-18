@@ -67,7 +67,6 @@ jobs:
   BuildAndRelease:
     if: (github.ref == 'refs/heads/main') && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    needs: [Trivy]
     steps:     
       -
         name: Checkout Code
