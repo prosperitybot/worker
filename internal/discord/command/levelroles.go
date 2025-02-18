@@ -159,7 +159,7 @@ func (m LevelRolesCommand) subcmd_remove(c echo.Context, i discordgo.Interaction
 		return
 	}
 
-	if _, err := m.db.NamedExecContext(c.Request().Context(), "DELETE FROM level_roles WHERE id = ?", role); err != nil {
+	if _, err := m.db.Exec("DELETE FROM level_roles WHERE id = ?", role); err != nil {
 		logger.Error(c.Request().Context(), "Error whilst deleting the levelrole", zap.Error(err))
 		utils.SendResponse(c, "Error removing level role", true, true)
 		return
